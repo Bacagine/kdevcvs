@@ -10,9 +10,9 @@ I forked this because I work at a company that uses this plugin and I commited t
 
 ## Compilation
 
-`$ git clone https://github.com/Bacagine/kdevelop-cvs-plugin.git cvs`
+`$ git clone https://github.com/Bacagine/kdevcvs.git`
 
-`$ cd cvs`
+`$ cd kdevcvs`
 
 `$ mkdir build`
 
