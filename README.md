@@ -1,4 +1,4 @@
-# kdevelop-cvs-plugin
+# kdevcvs (KDevelop CVS Plugin)
 
 <p align="center">
   <img src="kdevcvs.png" alt="KDevelop CVS Plugin"/>
