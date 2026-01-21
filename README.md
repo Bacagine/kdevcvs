@@ -10,9 +10,21 @@ I forked this because I work at a company that uses this plugin and I commited t
 
 ## Compilation
 
+### Clone the repository
+
 `$ git clone https://github.com/Bacagine/kdevcvs.git`
 
 `$ cd kdevcvs`
+
+### Symbolic link for KDevelop 5
+
+`$ ln -s CMakeLists.txt.qt5 CMakeLists.txt`
+
+### Symbolic link for KDevelop 6
+
+`$ ln -s CMakeLists.txt.qt6 CMakeLists.txt`
+
+### Build and make
 
 `$ mkdir build`
 

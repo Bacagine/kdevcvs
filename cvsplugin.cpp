@@ -19,7 +19,9 @@
 #include <KParts/Part>
 #include <KParts/ReadOnlyPart>
 #include <KPluginFactory>
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
 #include <KPluginLoader>
+#endif
 #include <KActionCollection>
 #include <KMessageBox>
 #include <KAboutData>
@@ -49,7 +51,9 @@
 #include <vcs/vcspluginhelper.h>
 #include <vcs/widgets/standardvcslocationwidget.h>
 
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
 K_PLUGIN_FACTORY_WITH_JSON(KDevCvsFactory, "kdevcvs.json", registerPlugin<CvsPlugin>();)
+#endif
 // K_EXPORT_PLUGIN(KDevCvsFactory(KAboutData("kdevcvs", "kdevcvs", ki18n("CVS"), "0.1", ki18n("Support for CVS version control system"), KAboutData::License_GPL)))
 
 class KDevCvsViewFactory: public KDevelop::IToolViewFactory
@@ -83,9 +87,15 @@ public:
     QScopedPointer<KDevelop::VcsPluginHelper> m_common;
 };
 
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
 CvsPlugin::CvsPlugin(QObject *parent, const QVariantList &)
         : KDevelop::IPlugin(QStringLiteral("kdevcvs"), parent)
         , d(new CvsPluginPrivate(this))
+#else
+CvsPlugin::CvsPlugin(QObject *parent, const KPluginMetaData &metaData, const QVariantList &args)
+        : KDevelop::IPlugin(QStringLiteral("kdevcvs"), parent, metaData)
+        , d(new CvsPluginPrivate(this))
+#endif
 {
     core()->uiController()->addToolView(i18n("CVS"), d->m_factory);
 
@@ -461,7 +471,11 @@ KDevelop::VcsJob * CvsPlugin::createWorkingCopy(const KDevelop::VcsLocation & so
     << "dest:" << destinationDirectory.toLocalFile()
     << "srv:" << sourceRepository.repositoryServer()
     << "module:" << sourceRepository.repositoryModule()
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
     << "branch:" << sourceRepository.repositoryBranch() << endl;
+#else
+    << "branch:" << sourceRepository.repositoryBranch() << Qt::endl;
+#endif
 
     CvsJob* job = d->m_proxy->checkout(destinationDirectory,
                                        sourceRepository.repositoryServer(),
@@ -488,6 +502,10 @@ KDevelop::VcsLocationWidget* CvsPlugin::vcsLocation(QWidget* parent) const
 }
 
 // End:  KDevelop::IBasicVersionControl
+
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
+K_PLUGIN_FACTORY_WITH_JSON(CvsPluginFactory, "kdevcvs.json", registerPlugin<CvsPlugin>();)
+#endif
 
 #include "cvsplugin.moc"
 

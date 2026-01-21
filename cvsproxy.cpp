@@ -146,7 +146,11 @@ QString CvsProxy::convertRevisionToPrevious(const KDevelop::VcsRevision& rev)
                 // next we need to cut off the last part of the revision number
                 // this number is a count of revisions with a branch
                 // so if we want to diff to the previous we just need to lower it by one
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
                 int number = orig.midRef(orig.lastIndexOf(QLatin1Char('.'))+1).toInt();
+#else
+                int number = orig.mid(orig.lastIndexOf(QLatin1Char('.'))+1).toInt();
+#endif
                 if (number > 1) // of course this is only possible if our revision is not the first on the branch
                     number--;
 

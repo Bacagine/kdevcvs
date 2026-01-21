@@ -31,7 +31,11 @@ QVariant CvsDiffJob::fetchResults()
 
     /// @todo check output of "cvs diff" if it reported binary files
 
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
     return qVariantFromValue( diff );
+#else
+    return QVariant::fromValue( diff );
+#endif
 }
 
 void CvsDiffJob::slotProcessError(QProcess::ProcessError error) {

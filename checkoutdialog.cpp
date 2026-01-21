@@ -58,14 +58,26 @@ void CheckoutDialog::jobFinished(KJob * job)
     // The job finished, now let's check the output is everything was OK
     CvsJob* cvsjob = static_cast<CvsJob*>(job);
 
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
     static QRegExp re_file(QStringLiteral("^.\\s(.*)"));
+#else
+    static QRegularExpression re_file(QStringLiteral("^.\\s(.*)"));
+#endif
+
     bool error = false;
     const QStringList lines = cvsjob->output().split(QLatin1Char('\n'));
     for (const QString& line : lines) {
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
+	auto match = re_file.match(line);
+#endif
         if (line.isEmpty()) {
             // ignore empty lines
             continue;
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
         } else if (re_file.exactMatch(line)) {
+#else
+	} else if (match.hasMatch()) {
+#endif
             // line that tell us that a file has been checkedout
             continue;
         } else {

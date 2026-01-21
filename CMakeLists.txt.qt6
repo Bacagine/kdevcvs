@@ -1,0 +1,59 @@
+cmake_minimum_required(VERSION 3.16)
+project(cvs)
+
+# 1. Detecção
+find_package(KDevPlatform 6.0.0 QUIET)
+if(KDevPlatform_FOUND)
+    set(QT_MAJOR_VERSION 6)
+    set(KF_MAJOR_VERSION 6)
+    set(KDEV_ABI_VERSION 64)
+else()
+    find_package(KDevPlatform 5.2.40 REQUIRED)
+    set(QT_MAJOR_VERSION 5)
+    set(KF_MAJOR_VERSION 5)
+    set(KDEV_ABI_VERSION 40)
+endif()
+
+find_package(ECM REQUIRED NO_MODULE)
+set(CMAKE_MODULE_PATH ${ECM_MODULE_PATH})
+
+include(KDEInstallDirs)
+include(KDECMakeSettings)
+include(KDECompilerSettings NO_POLICY_SCOPE)
+include(ECMQtDeclareLoggingCategory)
+
+find_package(KF${KF_MAJOR_VERSION} REQUIRED COMPONENTS I18n KIO Parts TextEditor TextWidgets CoreAddons)
+find_package(Qt${QT_MAJOR_VERSION} REQUIRED COMPONENTS Widgets Core)
+
+# 2. Fontes
+ecm_qt_declare_logging_category(kdevcvs_LOG_PART_SRCS
+    HEADER debug.h IDENTIFIER PLUGIN_CVS CATEGORY_NAME "kdevelop.plugins.cvs")
+
+set(kdevcvs_PART_SRCS
+    cvsplugin.cpp cvsmainview.cpp cvsgenericoutputview.cpp cvsjob.cpp
+    cvsproxy.cpp editorsview.cpp commitdialog.cpp importmetadatawidget.cpp
+    importdialog.cpp checkoutdialog.cpp cvsannotatejob.cpp cvslogjob.cpp
+    cvsdiffjob.cpp cvsstatusjob.cpp ${kdevcvs_LOG_PART_SRCS}
+)
+
+ki18n_wrap_ui(kdevcvs_PART_SRCS cvsmainview.ui cvsgenericoutputview.ui editorsview.ui commitdialog.ui importmetadatawidget.ui checkoutdialog.ui)
+
+if(QT_MAJOR_VERSION EQUAL 6)
+    qt_add_resources(kdevcvs_PART_SRCS kdevcvs.qrc)
+else()
+    qt5_add_resources(kdevcvs_PART_SRCS kdevcvs.qrc)
+endif()
+
+# 3. O SEGREDO PARA O QT6: Adicionar o JSON como fonte
+# No Qt6, o JSON deve ser listado nos sources para a macro K_PLUGIN_FACTORY_WITH_JSON funcionar
+kdevplatform_add_plugin(kdevcvs SOURCES ${kdevcvs_PART_SRCS} kdevcvs.json)
+
+target_link_libraries(kdevcvs
+    KF${KF_MAJOR_VERSION}::KIOWidgets KF${KF_MAJOR_VERSION}::Parts
+    KF${KF_MAJOR_VERSION}::TextEditor KF${KF_MAJOR_VERSION}::TextWidgets
+    KF${KF_MAJOR_VERSION}::CoreAddons
+    KDev::Util KDev::Interfaces KDev::Vcs KDev::Project KDev::Language
+)
+
+install(TARGETS kdevcvs DESTINATION ${KDE_INSTALL_QTPLUGINDIR}/kdevplatform/${KDEV_ABI_VERSION})
+

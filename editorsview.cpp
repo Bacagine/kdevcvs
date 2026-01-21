@@ -79,12 +79,22 @@ void EditorsView::slotJobFinished(KJob* job)
 void EditorsView::parseOutput(const QString& jobOutput, QMultiMap<QString,CvsLocker>& editorsInfo)
 {
     // the first line contains the filename and than the locker information
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
     static QRegExp re(QLatin1String("([^\\s]+)\\s+([^\\s]+)\\s+([^\\s]+)\\s+([^\\s]+)\\s+([^\\s]+)\\s+"
                                     "([^\\s]+)\\s+([^\\s]+)\\s+([^\\s]+)\\s+([^\\s]+)\\s+(.*)"));
+#else
+    static QRegularExpression re(QLatin1String("([^\\s]+)\\s+([^\\s]+)\\s+([^\\s]+)\\s+([^\\s]+)\\s+([^\\s]+)\\s+"
+                                       "([^\\s]+)\\s+([^\\s]+)\\s+([^\\s]+)\\s+([^\\s]+)\\s+(.*)"));
+#endif
     // if there are more than one locker of a single file, the second line for a file
     // only contains the locker information (no filename)
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
     static QRegExp subre(QLatin1String("\\s+([^\\s]+)\\s+([^\\s]+)\\s+([^\\s]+)\\s+([^\\s]+)\\s+"
                                        "([^\\s]+)\\s+([^\\s]+)\\s+([^\\s]+)\\s+([^\\s]+)\\s+(.*)"));
+#else
+    static QRegularExpression subre(QLatin1String("\\s+([^\\s]+)\\s+([^\\s]+)\\s+([^\\s]+)\\s+([^\\s]+)\\s+"
+                                          "([^\\s]+)\\s+([^\\s]+)\\s+([^\\s]+)\\s+([^\\s]+)\\s+(.*)"));
+#endif
 
     QString lastfilename;
 
@@ -92,19 +102,35 @@ void EditorsView::parseOutput(const QString& jobOutput, QMultiMap<QString,CvsLoc
 
     for (int i=0; i<lines.count(); ++i) {
         QString s = lines[i];
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
+        auto match = re.match(s);
 
+        if (match.hasMatch()) {
+#else
         if (re.exactMatch(s)) {
+#endif
+
             CvsLocker item;
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
             QString file = re.cap(1);
             item.user = re.cap(2);
             item.date = re.cap(5)+QLatin1Char(' ')+re.cap(4)+QLatin1Char(' ')+re.cap(7)+QLatin1Char(' ')+re.cap(6);
             item.machine = re.cap(9);
             item.localrepo = re.cap(10);
+#else
+            QString file = match.captured(1);
+            item.user = match.captured(2);
+            item.date = match.captured(5) + QLatin1Char(' ') + match.captured(4) + QLatin1Char(' ') +
+                        match.captured(7) + QLatin1Char(' ') + match.captured(6);
+            item.machine = match.captured(9);
+            item.localrepo = match.captured(10);
+#endif
 
             editorsInfo.insert(file, item);
 
             lastfilename = file;
         } else {
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
             if (subre.exactMatch(s)) {
                 CvsLocker item;
                 item.user = subre.cap( 1 );
@@ -113,6 +139,20 @@ void EditorsView::parseOutput(const QString& jobOutput, QMultiMap<QString,CvsLoc
                 item.localrepo = subre.cap(9);
 
                 editorsInfo.insert(lastfilename, item);
+#else
+            auto submatch = subre.match(s);
+            if (submatch.hasMatch()) {
+                CvsLocker item;
+                item.user = submatch.captured(1);
+                item.date = submatch.captured(4) + QLatin1Char(' ') + submatch.captured(3) + QLatin1Char(' ') +
+                            submatch.captured(6) + QLatin1Char(' ') + submatch.captured(5);
+                item.machine = submatch.captured(8);
+                item.localrepo = submatch.captured(9);
+
+                if (!lastfilename.isEmpty()) {
+                    editorsInfo.insert(lastfilename, item);
+                }
+#endif
             }
         }
     }

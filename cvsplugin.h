@@ -37,7 +37,11 @@ class CvsPlugin : public KDevelop::IPlugin, public KDevelop::ICentralizedVersion
     friend class CvsProxy;
 
 public:
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
     explicit CvsPlugin(QObject *parent, const QVariantList & args = QVariantList());
+#else
+    explicit CvsPlugin(QObject *parent, const KPluginMetaData &metaData, const QVariantList &args = QVariantList());
+#endif
     ~CvsPlugin() override;
 
     void unload() override;
