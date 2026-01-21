@@ -48,7 +48,7 @@ After compile, you need copy the kdevcvs.so to the KDevelop plugins directory.
 
 `# cp kdevcvs.so /usr/lib/x86_64-linux-gnu/qt5/plugins/kdevplatform/34/`
 
-### In Arch Linux
+#### In Arch Linux
 
 `# cp kdevcvs.so /usr/lib64/qt6/plugins/kdevplatform/64/`
 
