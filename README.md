@@ -34,7 +34,7 @@ I forked this because I work at a company that uses this plugin and I commited t
 
 `$ make`
 
-## Instalation
+## Installation
 
 After compile, you need copy the kdevcvs.so to the KDevelop plugins directory.
 
@@ -44,6 +44,11 @@ After compile, you need copy the kdevcvs.so to the KDevelop plugins directory.
 
 `# cp kdevcvs.so /usr/lib64/qt5/plugins/kdevplatform/35/`
 
-#### In PureOS:
+#### In Debian/PureOS:
 
 `# cp kdevcvs.so /usr/lib/x86_64-linux-gnu/qt5/plugins/kdevplatform/34/`
+
+### In Arch Linux
+
+`# cp kdevcvs.so /usr/lib64/qt6/plugins/kdevplatform/64/`
+
